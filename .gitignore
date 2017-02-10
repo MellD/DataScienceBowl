@@ -1,0 +1,4 @@
+# Ignore input files
+.idea
+
+input/*
