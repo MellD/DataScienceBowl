@@ -100,6 +100,14 @@ def plot_3d(image, threshold):
 
     plt.show()
 
+# TODO: create point cloud
+# Transform stack into a point cloud with one point for each valid pixel (!= -2000)
+# NOTE:In this case it should be straightforward: instead of looping over pixels and doing some operations on each pixel,
+# apply those operations to the whole image and let Numpy worry about looping over the pixels.
+#def create_point_cloud(images):
+#    depth = len(images)
+#    rows, cols = images.shape
+#    return np.dstack(())
 
 #TODO: Noise reduction
 #TODO: Raise morphologies

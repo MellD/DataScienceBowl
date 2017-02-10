@@ -24,24 +24,23 @@ patients.sort()
 print("\n", "PREPROCESSING SAMPLE DATA (20 Patients)")
 
 # 1. For each patient Load the whole stack of CT-Data, convert greyscale to HU and resample data
-Images = []
-for i in range(0,1):
-               #len(patients)):
+images = []
+for i in range(1): #len(patients)):
     ctData = Preprocessing.load_scan(INPUT_FOLDER + patients[i])
     # Convert greyscale to Hounsfield Units (HU)
     pixelValues = Preprocessing.get_pixels_hu(ctData)
     # Resample voxels to 1x1x1 distance
     resampled, spacing = Preprocessing.resample(pixelValues, ctData, [1, 1, 1])
-    #print("Shape before resampling\t", pixelValues.shape)
-    #print("Shape after resampling\t", resampled.shape)
-    Images.append(resampled)
+    # print("Shape before resampling\t", pixelValues.shape)
+    print("Shape after resampling\t", resampled.shape)
+    images.append(resampled)
 
-PatientImages = np.array(Images)
+patientImages = np.array(images)
 
 
 # OPTIONAL
 # 1.1. Mesh Generation with Marching Cubes
-# Preprocessing.plot_3d(PatientImages[1], -500)
+# Preprocessing.plot_3d(patientImages[1], -500)
 
 #TODO: Filter noises
 
@@ -49,17 +48,18 @@ PatientImages = np.array(Images)
 print("\n", "SEGMENTATION OF LUNG TISSUE WITH WATERSHED")
 
 # 2.1.a For each patient Iterate over all Slices to segment Lung with Watershed
-SegmentedImages= []
-for i in range (0, len(PatientImages)):
-    SegmentedImage = []
-    for j in range (0, len(PatientImages[i])):
-        segmented_lung, lungfilter_area, outline, watershed_image, sobel_gradient, marker_internal, \
-        marker_external, marker_watershed = Segmentation.seperate_lungs(PatientImages[i][j])
-        SegmentedImage.append(segmented_lung)
-    Segmented = np.array(SegmentedImage)
-    SegmentedImages.append(Segmented)
+segmentedLungs= []
+for i in range(len(patientImages)):
+    #segmentedImages = []
+    patient = patientImages[i]
+    rows, cols = patient[0].shape
+    segmentedImages = np.empty((len(patient),rows, cols))
+    for n in range(len(patient)):
+        segmentedLung, lungfilterArea, outline, watershedImage, sobelGradient, markerInternal, \
+        markerExternal, markerWatershed = Segmentation.seperate_lungs(patientImages[i][n])
+        segmentedImages[n, :, :] = segmentedLung
+    segmentedLungs.append(segmentedImages)
 
-#SegmentedLungs = np.array(SegmentedImages)
 
 # 2.1.b OPTIONAL: Just show some example markers from the middle Slice (i.e picture 125)
 # test_patient_internal, test_patient_external, test_patient_watershed = Segmentation.generate_markers(PatientImages.index(2)[125])
@@ -74,8 +74,8 @@ for i in range (0, len(PatientImages)):
 # plt.show()
 
 # 2.1.c OPTIONAL: Lung Segmentation with Watershed for only one Slice
-test_segmented, test_lungfilter, test_outline, test_watershed, test_sobel_gradient, test_marker_internal, \
-test_marker_external, test_marker_watershed = Segmentation.seperate_lungs(PatientImages[1][100])
+#test_segmented, test_lungfilter, test_outline, test_watershed, test_sobel_gradient, test_marker_internal, \
+#test_marker_external, test_marker_watershed = Segmentation.seperate_lungs(patientImages[0][100])
 
 #print("Sobel Gradient")
 #plt.imshow(test_sobel_gradient, cmap='gray')
@@ -95,9 +95,9 @@ test_marker_external, test_marker_watershed = Segmentation.seperate_lungs(Patien
 
 
 # 2.1.d OPTIONAL: Plot the segmented lung from one patient and the HU values
-#Preprocessing.plot_3d(SegmentedLungs[1], -500)
+#Preprocessing.plot_3d(segmentedLungs[0], -500)
 
-plt.hist(SegmentedImages.index(1), bins=80, color='c')
+plt.hist(segmentedLungs[0], bins=80, color='c')
 plt.xlabel("Hounsfield Unit [HU]")
 plt.ylabel("Frequency")
 plt.show()
