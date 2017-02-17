@@ -9,9 +9,14 @@ import dicom
 import os
 import scipy.ndimage
 import matplotlib.pyplot as plt
+import pylab
 
+from skimage.restoration import (denoise_tv_chambolle, denoise_bilateral, estimate_sigma)
 from skimage import measure
+from skimage.segmentation import clear_border
+from matplotlib import pyplot
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from mpl_toolkits.mplot3d import Axes3D
 
 
 # Load the scans in the given folder path
@@ -100,14 +105,68 @@ def plot_3d(image, threshold):
 
     plt.show()
 
-# TODO: create point cloud
-# Transform stack into a point cloud with one point for each valid pixel (!= -2000)
-# NOTE:In this case it should be straightforward: instead of looping over pixels and doing some operations on each pixel,
-# apply those operations to the whole image and let Numpy worry about looping over the pixels.
-#def create_point_cloud(images):
-#    depth = len(images)
-#    rows, cols = images.shape
-#    return np.dstack(())
+
+# @variable footprint: Neighborhood
+# @variable size: if no footprint is given, with ie size=2 := footprint=np.ones(2,2,2)
+# @variable mode: Default is 'reflect'.
+# @variable weight: The greater weight, the more denoising
+def noise_reduction(images):
+    #image = scipy.ndimage.filters.gaussian_filter(image, sigma)    ->no
+    #image = scipy.ndimage.filters.gaussian_laplace(image, sigma=1) ->no
+
+    # remove artifacts connected to image border
+    #TODO: Need better method for artifact removal
+    #rows, cols = images[0].shape
+    #clearedImages = np.empty((len(images), rows, cols))
+    #for i in range(len(images)):
+    #    clearedImages[i,:,:] = clear_border(images[i], bgval=-2000)
+
+    # Estimate the average noise standard deviation across color channels.
+    sigma_est = estimate_sigma(images, multichannel=False, average_sigmas=True)
+    print("Estimated Gaussian noise standard deviation = {}".format(sigma_est))
+
+
+    denoised_images = denoise_tv_chambolle(images, weight=0.01, multichannel=False) # Choose weight not too big!
+
+    #images = scipy.ndimage.filters.median_filter(cleared, size=3) #--> Es werden mehr Bildpunkte? -> TODO
+    return denoised_images
+
+
+def print_pointcloud(images, interval_begin, interval_end):
+    fig = pylab.figure()
+    ax = Axes3D(fig)
+
+    #Get Coordinates where HU values are between a certain interval
+    ii = np.where((images >= interval_begin) & (images <= interval_end))
+    # ii = (array([0,0,0, ..., 334, 334, 334], dtype=int64),
+    #       array([ 84,  84,  84, ..., 170, 170, 170], dtype=int64),
+    #       array([233, 234, 235, ...,  99, 100, 101], dtype=int64))
+
+    z_vals = ii[0]
+    x_vals = ii[1]
+    y_vals = ii[2]
+
+    print(len(y_vals))
+    #For >= -1000: 6386957 points
+    #For >= -1000 & <= 165: 6263747 points
+    #For >= -800:  1862225 points
+    #For >= -20:    523477 points
+
+    #Remove every second point from list (because of performance issues)
+    z_vals = np.delete(z_vals, np.arange(0,z_vals.size,2))
+    x_vals = np.delete(x_vals, np.arange(0,x_vals.size,2))
+    y_vals = np.delete(y_vals, np.arange(0,y_vals.size,2))
+
+    z_vals = np.delete(z_vals, np.arange(0,z_vals.size,2))
+    x_vals = np.delete(x_vals, np.arange(0,x_vals.size,2))
+    y_vals = np.delete(y_vals, np.arange(0,y_vals.size,2))
+
+    #Plot all points:
+    ax.scatter(y_vals, x_vals, z_vals)
+    pyplot.show()
+
 
 #TODO: Noise reduction
 #TODO: Raise morphologies
+
+

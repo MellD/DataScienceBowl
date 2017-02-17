@@ -7,7 +7,7 @@ external code: https://www.kaggle.com/ankasor/data-science-bowl-2017/improved-lu
 import numpy as np  # linear algebra
 import scipy.ndimage as ndimage
 
-from skimage import measure, morphology, segmentation
+from skimage import measure, morphology, segmentation, filters
 
 #**** Watershed method: 3D Mathematical morphological approach ****#
 #**** Improved Lung Segmentation using Watershed: *****************#
@@ -140,3 +140,9 @@ def largest_label_volume(im, bg=-1):
         return vals[np.argmax(counts)]
     else:
         return None
+
+def morphological_extraction(images):
+    labeled_morphs, num = measure.label(images, neighbors=8, background=-2000, return_num=True, connectivity=3)
+    #connect 3 = 5523046
+    print("Number of labeled region:", num)
+    return labeled_morphs
