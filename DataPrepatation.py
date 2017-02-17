@@ -40,7 +40,6 @@ for i in range(len(patients)):
 patientImages = np.array(images)
 
 
-
 # 2. SEGMENTATION OF LUNG TISSUE WITH WATERSHED
 print("\n", "SEGMENTATION OF LUNG TISSUE WITH WATERSHED")
 
@@ -61,7 +60,7 @@ for i in range(len(patientImages)):
 # 3. SAVE ALL SEGMENTED LUNGS AS .NPY
 print("\n", "SAVE ALL SEGMENTED LUNGS AS .NPY FILE")
 
-# TODO Save all patients
+
 for i in range(len(segmentedLungs)):
     Loader.save_stack(segmentedLungs[i], ('seg' + str(i)))
 

@@ -110,9 +110,11 @@ def plot_3d(image, threshold):
 # @variable size: if no footprint is given, with ie size=2 := footprint=np.ones(2,2,2)
 # @variable mode: Default is 'reflect'.
 # @variable weight: The greater weight, the more denoising
-def noise_reduction(images):
+def noise_reduction(image):
     #image = scipy.ndimage.filters.gaussian_filter(image, sigma)    ->no
     #image = scipy.ndimage.filters.gaussian_laplace(image, sigma=1) ->no
+    #image = scipy.ndimage.filters.median_filter(denoised_images, size=2) #--> Segmentierter Bereich vergrößert sich-> No!
+    #denoised_images = denoise_bilateral(image,sigma_color=None, sigma_spatial=10, multichannel=False) #-> No
 
     # remove artifacts connected to image border
     #TODO: Need better method for artifact removal
@@ -126,13 +128,12 @@ def noise_reduction(images):
     #print("Estimated Gaussian noise standard deviation = {}".format(sigma_est))
 
 
-    denoised_images = denoise_tv_chambolle(images, weight=0.01, multichannel=False) # Choose weight not too big!
+    denoised_images = denoise_tv_chambolle(image, weight=0.1, multichannel=False) # Choose weight not too big!
 
-    #images = scipy.ndimage.filters.median_filter(cleared, size=3) #--> Es werden mehr Bildpunkte? -> TODO
     return denoised_images
 
 
-def print_pointcloud(images, interval_begin, interval_end):
+def print_pointcloud(images, interval_begin=-1000, interval_end=165):
     fig = pylab.figure()
     ax = Axes3D(fig)
 

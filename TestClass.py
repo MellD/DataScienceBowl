@@ -10,7 +10,6 @@ import Loader
 import os
 import matplotlib.pyplot as plt
 import time
-import cv2
 
 # Time tracking
 time_start = time.time()
@@ -29,16 +28,16 @@ segmentedLung = Loader.load_stack('test1.npy')
 
 
 # 2.1.b OPTIONAL: Just show some example markers from the middle Slice (i.e picture 125)
-test_patient_internal, test_patient_external, test_patient_watershed = Segmentation.generate_markers(segmentedLung[100])
-print("Internal Marker")
-plt.imshow(test_patient_internal, cmap='gray')
-plt.show()
-print("External Marker")
-plt.imshow(test_patient_external, cmap='gray')
-plt.show()
-print("Watershed Marker")
-plt.imshow(test_patient_watershed, cmap='gray')
-plt.show()
+#test_patient_internal, test_patient_external, test_patient_watershed = Segmentation.generate_markers(segmentedLung[100])
+#print("Internal Marker")
+#plt.imshow(test_patient_internal, cmap='gray')
+#plt.show()
+#print("External Marker")
+#plt.imshow(test_patient_external, cmap='gray')
+#plt.show()
+#print("Watershed Marker")
+#plt.imshow(test_patient_watershed, cmap='gray')
+#plt.show()
 
 
 
@@ -63,12 +62,22 @@ plt.show()
 #plt.show()
 
 
-#filteredLung = Preprocessing.noise_reduction(segmentedLung)
-#Preprocessing.print_pointcloud(filteredLung)
+filteredLung = Preprocessing.noise_reduction(segmentedLung)
+
+print("Noise reduction:")
+plt.imshow(filteredLung[100], cmap='gray')
+plt.show()
+
+plt.hist(filteredLung.flatten(), bins=80, color='c')
+plt.xlabel("Hounsfield Unit [HU]")
+plt.ylabel("Frequency")
+plt.show()
+
+Preprocessing.print_pointcloud(filteredLung)
 
 morph_extracts = Segmentation.morphological_extraction(segmentedLung)
 
-print("Noise reduction")
+print("Morph Extraction:")
 plt.imshow(morph_extracts[100], cmap='gray')
 plt.show()
 
@@ -78,7 +87,7 @@ plt.ylabel("Frequency")
 plt.show()
 
 print("After Morph extracting:")
-Preprocessing.print_pointcloud(filteredLung)
+Preprocessing.print_pointcloud(filteredLung,1, 1000)
 
 
 
