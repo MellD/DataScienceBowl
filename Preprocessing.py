@@ -11,7 +11,7 @@ import scipy.ndimage
 import matplotlib.pyplot as plt
 import pylab
 
-from skimage.restoration import (denoise_tv_chambolle, denoise_bilateral, estimate_sigma)
+from skimage.restoration import (denoise_tv_chambolle, denoise_bilateral) #estimate_sigma)
 from skimage import measure
 from skimage.segmentation import clear_border
 from matplotlib import pyplot
@@ -122,8 +122,8 @@ def noise_reduction(images):
     #    clearedImages[i,:,:] = clear_border(images[i], bgval=-2000)
 
     # Estimate the average noise standard deviation across color channels.
-    sigma_est = estimate_sigma(images, multichannel=False, average_sigmas=True)
-    print("Estimated Gaussian noise standard deviation = {}".format(sigma_est))
+    #sigma_est = estimate_sigma(images, multichannel=False, average_sigmas=True)
+    #print("Estimated Gaussian noise standard deviation = {}".format(sigma_est))
 
 
     denoised_images = denoise_tv_chambolle(images, weight=0.01, multichannel=False) # Choose weight not too big!

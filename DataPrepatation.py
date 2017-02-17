@@ -34,7 +34,7 @@ for i in range(len(patients)):
     # Resample voxels to 1x1x1 distance
     resampled, spacing = Preprocessing.resample(pixelValues, ctData, [1, 1, 1])
     # print("Shape before resampling\t", pixelValues.shape)
-    print("Shape after resampling\t", resampled.shape)
+    #print("Shape after resampling\t", resampled.shape)
     images.append(resampled)
 
 patientImages = np.array(images)
@@ -47,6 +47,7 @@ print("\n", "SEGMENTATION OF LUNG TISSUE WITH WATERSHED")
 # 2.1.a For each patient Iterate over all Slices to segment Lung with Watershed
 segmentedLungs= []
 for i in range(len(patientImages)):
+    print("Patient ", i )
     patient = patientImages[i]
     rows, cols = patient[0].shape
     segmentedImages = np.empty((len(patient),rows, cols))
@@ -62,7 +63,7 @@ print("\n", "SAVE ALL SEGMENTED LUNGS AS .NPY FILE")
 
 # TODO Save all patients
 for i in range(len(segmentedLungs)):
-    Loader.save_stack(segmentedLungs[i], ("seg" + i))
+    Loader.save_stack(segmentedLungs[i], ('seg' + str(i)))
 
 
 
