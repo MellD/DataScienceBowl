@@ -1,7 +1,9 @@
 """
 author: Melanie Daeschinger
 description: Segmentation methods for lung tissue
-external code: https://www.kaggle.com/ankasor/data-science-bowl-2017/improved-lung-segmentation-using-watershed/notebook
+external code:
+-https://www.kaggle.com/ankasor/data-science-bowl-2017/improved-lung-segmentation-using-watershed/notebook
+-https://www.kaggle.com/gzuidhof/data-science-bowl-2017/full-preprocessing-tutorial
 """
 
 import numpy as np  # linear algebra
@@ -9,7 +11,7 @@ import scipy.ndimage as ndimage
 
 from skimage import measure, morphology, segmentation, filters
 
-#**** Watershed method: 3D Mathematical morphological approach ****#
+#**** Watershed method: 2D Mathematical morphological approach ****#
 #**** Improved Lung Segmentation using Watershed: *****************#
 
 # First we need to identiy two markers: A lung marker, that is definitely lung tissue
@@ -79,9 +81,9 @@ def seperate_lungs(image):
     lungfilter = ndimage.morphology.binary_closing(lungfilter, structure=np.ones((5, 5)), iterations=3)
 
     # Apply the lungfilter (note the filtered areas being assigned -2000 HU)
-    segmented = np.where(lungfilter == 1, image, -2000 * np.ones(image.shape))
+    #segmented = np.where(lungfilter == 1, image, -2000 * np.ones(image.shape))
 
-    return segmented, lungfilter, outline, watershed, sobel_gradient, marker_internal, marker_external, marker_watershed
+    return lungfilter, outline, watershed, sobel_gradient, marker_internal, marker_external, marker_watershed
 
 
 
@@ -128,7 +130,9 @@ def segment_lung_mask(image, fill_lung_structures=True):
     if l_max is not None:  # There are air pockets
         binary_image[labels != l_max] = 0
 
-    return binary_image
+    #Set all segmented values to -2000
+    segmented_lung = np.where(binary_image == 1, image, -2000)
+    return segmented_lung
 
 def largest_label_volume(im, bg=-1):
     vals, counts = np.unique(im, return_counts=True)

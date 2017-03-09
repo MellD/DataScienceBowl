@@ -82,7 +82,7 @@ def resample(image, scan, new_spacing):
 
 
 # Visualization Algorithm "Marching Cubes"
-# @threshold: Plot certain structures. [-300, -400]: Plot lung tissue
+# @threshold: Plot certain structures. [-400, -500]: Plot lung tissue
 def plot_3d(image, threshold):
     # Position the scan upright,
     # so the head of the patient would be at the top facing the camera
@@ -106,30 +106,10 @@ def plot_3d(image, threshold):
     plt.show()
 
 
-# @variable footprint: Neighborhood
-# @variable size: if no footprint is given, with ie size=2 := footprint=np.ones(2,2,2)
-# @variable mode: Default is 'reflect'.
+
 # @variable weight: The greater weight, the more denoising
 def noise_reduction(image):
-    #image = scipy.ndimage.filters.gaussian_filter(image, sigma)    ->no
-    #image = scipy.ndimage.filters.gaussian_laplace(image, sigma=1) ->no
-    #image = scipy.ndimage.filters.median_filter(denoised_images, size=2) #--> Segmentierter Bereich vergrößert sich-> No!
-    #denoised_images = denoise_bilateral(image,sigma_color=None, sigma_spatial=10, multichannel=False) #-> No
-
-    # remove artifacts connected to image border
-    #TODO: Need better method for artifact removal
-    #rows, cols = images[0].shape
-    #clearedImages = np.empty((len(images), rows, cols))
-    #for i in range(len(images)):
-    #    clearedImages[i,:,:] = clear_border(images[i], bgval=-2000)
-
-    # Estimate the average noise standard deviation across color channels.
-    #sigma_est = estimate_sigma(images, multichannel=False, average_sigmas=True)
-    #print("Estimated Gaussian noise standard deviation = {}".format(sigma_est))
-
-
     denoised_images = denoise_tv_chambolle(image, weight=0.1, multichannel=False) # Choose weight not too big!
-
     return denoised_images
 
 
@@ -147,11 +127,7 @@ def print_pointcloud(images, interval_begin=-1000, interval_end=165):
     x_vals = ii[1]
     y_vals = ii[2]
 
-    print(len(y_vals))
-    #For >= -1000: 6386957 points
-    #For >= -1000 & <= 165: 6263747 points
-    #For >= -800:  1862225 points
-    #For >= -20:    523477 points
+    print("Number of points:", len(y_vals))
 
     #Remove every second point from list (because of performance issues)
     z_vals = np.delete(z_vals, np.arange(0,z_vals.size,2))
